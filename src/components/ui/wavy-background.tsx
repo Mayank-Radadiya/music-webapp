@@ -35,6 +35,7 @@ export const WavyBackground = ({
     ctx: any,
     canvas: any;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  let animationId: number;
   const getSpeed = () => {
     switch (speed) {
       case "slow":
@@ -83,7 +84,15 @@ export const WavyBackground = ({
     }
   };
 
-  let animationId: number;
+  useEffect(() => {
+    init();
+    const animationId = animationRef.current; // Store current value
+    return () => {
+      cancelAnimationFrame(animationId!); // Cleanup safely
+    };
+  }, [init]); // Now depends on `init`
+  
+
   const render = () => {
     ctx.fillStyle = backgroundFill || "black";
     ctx.globalAlpha = waveOpacity || 0.5;
@@ -91,13 +100,7 @@ export const WavyBackground = ({
     drawWave(5);
     animationId = requestAnimationFrame(render);
   };
-
-  useEffect(() => {
-    init();
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, []);
+  const animationRef = useRef<number>();
 
   const [isSafari, setIsSafari] = useState(false);
   useEffect(() => {
